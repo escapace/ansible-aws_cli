@@ -1,0 +1,33 @@
+---
+
+- name: install package dependencies
+  package: name={{ item }} state=present
+  with_items:
+    - python3
+    - unzip
+
+- name: download the awscli archive
+  get_url:
+    url: https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_architecture }}.zip
+    dest: /tmp/awscli.zip
+    mode: "0644"
+  changed_when: false
+
+- name: unarchive the installer
+  unarchive: src=/tmp/awscli.zip dest=/tmp copy=no creates=/tmp/aws
+  changed_when: false
+
+- name: install awscli package
+  shell: /tmp/aws/install
+  args:
+    chdir: /tmp/aws
+    creates: /usr/local/bin/aws
+
+- name: clean up
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /tmp/awscli.zip
+    - /tmp/aws
+  changed_when: false
