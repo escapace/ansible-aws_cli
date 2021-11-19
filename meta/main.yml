@@ -1,0 +1,18 @@
+---
+
+galaxy_info:
+  role_name: aws_cli
+  description: AWS Command Line Interface
+  issue_tracker_url: https://github.com/escapace/ansible-aws_cli/issues
+  license: Apache-2.0
+  author: escapace
+  min_ansible_version: 2.10
+  github_branch: trunk
+  platforms:
+  - name: EL
+    versions:
+    - 8
+
+  galaxy_tags:
+  - escapace
+  - aws
