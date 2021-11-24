@@ -23,6 +23,14 @@
     chdir: /tmp/aws
     creates: /usr/local/bin/aws
 
+- name: link aws cli
+  ansible.builtin.file:
+    src: /usr/local/bin/aws
+    dest: /usr/bin/aws
+    owner: root
+    group: root
+    state: link
+
 - name: clean up
   ansible.builtin.file:
     path: "{{ item }}"
