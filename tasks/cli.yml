@@ -6,36 +6,42 @@
     - python3
     - unzip
 
-- name: download the awscli archive
-  get_url:
-    url: https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_architecture }}.zip
-    dest: /tmp/awscli.zip
-    mode: "0644"
+- name: check if aws_cli is installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/aws
   changed_when: false
+  register: aws_cli_stat
 
-- name: unarchive the installer
-  unarchive: src=/tmp/awscli.zip dest=/tmp copy=no creates=/tmp/aws
-  changed_when: false
+- name: install cni
+  when: not aws_cli_stat.stat.exists
+  block:
+    - name: download the awscli archive
+      get_url:
+        url: "{{ aws_cli_archive }}"
+        dest: /tmp/awscli.zip
+        mode: "0644"
 
-- name: install awscli package
-  shell: /tmp/aws/install
-  args:
-    chdir: /tmp/aws
-    creates: /usr/local/bin/aws
+    - name: unarchive the installer
+      unarchive: src=/tmp/awscli.zip dest=/tmp copy=no
 
-- name: link aws cli
-  ansible.builtin.file:
-    src: /usr/local/bin/aws
-    dest: /usr/bin/aws
-    owner: root
-    group: root
-    state: link
+    - name: install awscli package
+      ansible.builtin.shell: /tmp/aws/install
+      args:
+        chdir: /tmp/aws
+        executable: /bin/sh
 
-- name: clean up
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - /tmp/awscli.zip
-    - /tmp/aws
-  changed_when: false
+    - name: link aws cli
+      ansible.builtin.file:
+        src: /usr/local/bin/aws
+        dest: /usr/bin/aws
+        owner: root
+        group: root
+        state: link
+
+    - name: clean up
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /tmp/awscli.zip
+        - /tmp/aws
