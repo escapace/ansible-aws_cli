@@ -1,2 +1,4 @@
 ---
 # vars file for escapace.aws_cli
+
+aws_cli_archive: https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_architecture }}.zip
