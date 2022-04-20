@@ -1,7 +1,7 @@
 ---
 
 - name: install package dependencies
-  package: name={{ item }} state=present
+  ansible.builtin.package: name={{ item }} state=present
   with_items:
     - python3
     - unzip
@@ -16,13 +16,13 @@
   when: not aws_cli_stat.stat.exists
   block:
     - name: download the awscli archive
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ aws_cli_archive }}"
         dest: /tmp/awscli.zip
         mode: "0644"
 
     - name: unarchive the installer
-      unarchive: src=/tmp/awscli.zip dest=/tmp copy=no
+      ansible.builtin.unarchive: src=/tmp/awscli.zip dest=/tmp copy=no
 
     - name: install awscli package
       ansible.builtin.shell: /tmp/aws/install
