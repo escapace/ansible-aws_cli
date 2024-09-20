@@ -1,3 +1,3 @@
 ---
-- ansible.builtin.include_tasks: cli.yml
+- ansible.builtin.include_tasks: cli.y ml
   when: ansible_os_family == "RedHat"
