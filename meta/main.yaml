@@ -1,4 +1,5 @@
 ---
+dependencies: []
 galaxy_info:
   role_name: aws_cli
   description: AWS Command Line Interface
