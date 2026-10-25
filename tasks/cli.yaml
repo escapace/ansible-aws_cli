@@ -1,4 +1,10 @@
 ---
+- name: validate aws cli architecture
+  ansible.builtin.assert:
+    that:
+      - ansible_facts["architecture"] in ["x86_64", "aarch64"]
+    fail_msg: aws cli requires x86_64 or aarch64
+
 - name: install package dependencies
   ansible.builtin.package:
     name:
@@ -9,17 +15,20 @@
 - name: inspect the aws cli installation
   ansible.builtin.stat:
     path: /usr/local/bin/aws
-  changed_when: false
   register: aws_cli_stat
 
 - name: install aws cli
-  when: not aws_cli_stat.stat.exists
+  when:
+    - not aws_cli_stat.stat.exists
+    - not ansible_check_mode
   block:
     - name: download the awscli archive
       ansible.builtin.get_url:
         url: "{{ aws_cli_archive }}"
         dest: /tmp/awscli.zip
         mode: "0644"
+        timeout: 30
+        use_netrc: false
 
     - name: unarchive the installer
       ansible.builtin.unarchive:
@@ -48,3 +57,4 @@
     owner: root
     group: root
     state: link
+  when: aws_cli_stat.stat.exists or not ansible_check_mode

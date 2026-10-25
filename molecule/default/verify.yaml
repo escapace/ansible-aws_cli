@@ -1,0 +1,47 @@
+---
+- name: verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: inspect aws executable links
+      ansible.builtin.stat:
+        path: "{{ item }}"
+        follow: false
+      loop:
+        - /usr/local/bin/aws
+        - /usr/bin/aws
+      register: aws_cli_verify_links
+
+    - name: verify aws executable links
+      ansible.builtin.assert:
+        that:
+          - item.stat.islnk | default(false)
+      loop: "{{ aws_cli_verify_links.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: read aws cli version
+      ansible.builtin.command: /usr/bin/aws --version
+      changed_when: false
+      register: aws_cli_verify_version
+
+    - name: verify aws cli version
+      ansible.builtin.assert:
+        that:
+          - aws_cli_verify_version.stdout is match('^aws-cli/2\\.')
+
+    - name: inspect installer cleanup
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /tmp/awscli.zip
+        - /tmp/aws
+      register: aws_cli_verify_cleanup
+
+    - name: verify installer cleanup
+      ansible.builtin.assert:
+        that:
+          - not item.stat.exists
+      loop: "{{ aws_cli_verify_cleanup.results }}"
+      loop_control:
+        label: "{{ item.item }}"
